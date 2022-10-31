@@ -17,7 +17,7 @@ print(config)
 uri = os.environ.get('URI')
 
 
-engine = create_engine(uri)
+engine = create_engine("sqlite:///testDbTaha.db")
 
 
 #query = engine.execute("""SELECT * FROM Reality;""")
