@@ -58,3 +58,8 @@ for upload_day in upload_data:
     result = engine.execute(f"INSERT INTO reality(reality_date, reality) VALUES('{timestamp}', '{reality}') ON CONFLICT (reality_date) DO UPDATE SET reality_date = '{timestamp}', reality= '{reality}';")
     result.close()
 
+"""
+#git remote add origin https://github.com/Taha-Cakir/MLOps-workflow.git
+# git add . && git commit -m "initial commit"
+#git push https://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@github.com/Taha-Cakir/MLOps-workflow.git/
+"""
