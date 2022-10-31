@@ -26,4 +26,4 @@ jobs:
       - name: Execute Python Script
         env:
           URI: ${{ secrets.URI }}
-        run: python update_real_data.py
+        run: python etl.py

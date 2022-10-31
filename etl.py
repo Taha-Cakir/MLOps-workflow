@@ -4,29 +4,52 @@ import requests
 from datetime import datetime
 from sqlalchemy import create_engine
 import os
+
+#uri = os.environ.get('URI')
+#uri = os.environ["URI"] = "sqlite:///testDb.db"
+
+from dotenv import load_dotenv,dotenv_values
+
+load_dotenv()
+config = dotenv_values(".env")
+print(config)
+
 uri = os.environ.get('URI')
+
+
+engine = create_engine(uri)
+
+
+#query = engine.execute("""SELECT * FROM Reality;""")
 
 # obtaining the data
 url = 'https://api.blockchain.info/charts/transactions-per-second?timespan=all&sampled=false&metadata=false&cors=true&format=json'
 resp = requests.get(url)
 data = pd.DataFrame(resp.json()['values'])
 
+#data.head()
+
 # parsing the date
 data['x'] = [datetime.utcfromtimestamp(x).strftime('%Y-%m-%d %H:%M:%S') for x in data['x']]
 data['x'] = pd.to_datetime(data['x'])
 
-# reading the last real date from the database
-engine = create_engine(uri)
-query = engine.execute('SELECT MAX(reality_date) FROM reality;')
-last_reality_date = query.fetchall()[0][0]
-query.close()
+
+# rounding hours to get hourly data
+data['x'] = data['x'].dt.round('H')
+data.columns = ["reality_date","reality"]
+
+# getting the number of transactions per hour
+data_grouped = data.groupby('reality_date').sum().reset_index()
+
+
+#data.head()
+data.to_sql("Taha_Real",con=engine,if_exists='replace')
+
+
 
 # reading the last prediction from the database
-engine = create_engine(uri)
-query = engine.execute('SELECT MIN(prediction_date), MAX(prediction_date) FROM predictions;')
-prediction_date= query.fetchall()[0]
-query.close()
 
+"""
 first_prediction_date = prediction_date[0]
 last_prediction_date = prediction_date[1]
 
@@ -57,6 +80,8 @@ for upload_day in upload_data:
     timestamp, reality= upload_day
     result = engine.execute(f"INSERT INTO reality(reality_date, reality) VALUES('{timestamp}', '{reality}') ON CONFLICT (reality_date) DO UPDATE SET reality_date = '{timestamp}', reality= '{reality}';")
     result.close()
+"""
+
 
 """
 #git remote add origin https://github.com/Taha-Cakir/MLOps-workflow.git
